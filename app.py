@@ -6,7 +6,12 @@ from debate_scheduler import build_pairings, schedule_sessions, verify
 
 st.set_page_config(page_title="YES Debate Scheduler", page_icon="💬", layout="wide")
 
-st.title("💬 YES — Debate Scheduler")
+st.image("yes_logo.png", width=160)
+st.markdown(
+    "<h1 style='color:#00A0AF;'>YES – Debate Scheduler</h1>",
+    unsafe_allow_html=True
+)
+
 st.markdown(
     "Planify debates automatically for **S1** and **S2** categories — "
     "no intra-school matches, 2 debates per team, and balanced sessions."
