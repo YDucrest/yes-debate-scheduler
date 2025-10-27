@@ -112,18 +112,22 @@ with tab2:
 
 if generate:
     try:
-        if len(teams_S1) < 2 or len(teams_S2) < 2:
-            st.error("❌ You need at least 2 teams in each category.")
+        # Vérifie qu'il y a au moins UNE catégorie avec ≥ 2 équipes
+        if len(teams_S1) < 2 and len(teams_S2) < 2:
+            st.error("❌ You need at least 2 teams in S1 or S2.")
             st.stop()
 
-        # 1) Build pairings (from your algorithm)
-        pairings_S1 = build_pairings(teams_S1, t2s_S1, games_per_team)
-        pairings_S2 = build_pairings(teams_S2, t2s_S2, games_per_team)
+        # 1) Build pairings only for existing categories
+        pairings_by_level = {}
+        if len(teams_S1) >= 2:
+            pairings_by_level["S1"] = build_pairings(teams_S1, t2s_S1, games_per_team)
+        if len(teams_S2) >= 2:
+            pairings_by_level["S2"] = build_pairings(teams_S2, t2s_S2, games_per_team)
 
-        # 2) Schedule sessions
+        # 2) Schedule sessions (works even with only one category)
         sessions = schedule_sessions(
             rooms=rooms,
-            pairings_by_level={"S1": pairings_S1, "S2": pairings_S2},
+            pairings_by_level=pairings_by_level,
             games_per_team=games_per_team,
             want_mix_each_session=True,
         )
@@ -132,11 +136,11 @@ if generate:
         st.success("✅ Schedule generated successfully!")
         render_sessions_table(sessions, rooms)
 
-        # 4) Verify (your original function)
+        # 4) Verify only for existing levels
         verify(
             sessions,
-            teams_by_level={"S1": teams_S1, "S2": teams_S2},
-            t2s_by_level={"S1": t2s_S1, "S2": t2s_S2},
+            teams_by_level={lvl: (teams_S1 if lvl == "S1" else teams_S2) for lvl in pairings_by_level},
+            t2s_by_level={lvl: (t2s_S1 if lvl == "S1" else t2s_S2) for lvl in pairings_by_level},
             games_per_team=games_per_team,
             rooms=rooms,
         )
@@ -154,3 +158,4 @@ if generate:
         st.error(f"❌ Error: {e}")
 else:
     st.caption("Add schools and teams below, then click **Generate schedule** in the sidebar.")
+
